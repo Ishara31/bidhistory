@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Auction System - Bid History</title>
+  <style>
+    .popup-form {
+      display: none;
+      position: fixed;
+      top: 30%;
+      left: 30%;
+      background: white;
+      padding: 25px;
+      border: 1px solid black;
+      z-index: 100
+      ;
+
+       /* Add these styles to enable scrolling */
+  width: 400px;              /* Set a fixed width */
+  height: 300px;             /* Set a fixed height */
+  overflow-y: auto;          /* Enable vertical scrolling */
+  overflow-x: hidden;        /* Prevent horizontal scrolling if unnecessary */
+
+    }
+    .popup-form.show {
+      display: block;
+    }
+    .popup-table-container {
+  overflow-y: auto;
+  max-height: 230px;
+  margin-bottom: 10px;
+}
+
+.popup-table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.popup-table-container th,
+.popup-table-container td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+}
+  </style>
+</head>
+<body>
+  <h1>Bid History</h1>
+  <table border="1">
+    <tr>
+      <th>Bidder</th>
+      <th>Lot Number</th>
+      <th>Price</th>
+      <th>Grade</th>
+      <th>Action</th>
+    </tr>
+    <tr>
+      <td>Bidder 1</td>
+      <td>101</td>
+      <td>$100</td>
+      <td>OFF</td>
+      <td><button class="open-form-btn">View</button></td>
+    </tr>
+    <tr>
+      <td>Bidder 2</td>
+      <td>102</td>
+      <td>$200</td>
+      <td>MAIN</td>
+      <td><button class="open-form-btn">View</button></td>
+    </tr>
+    <tr>
+      <td>Bidder 3</td>
+      <td>103</td>
+      <td>$90</td>
+      <td>OFF</td>
+      <td><button class="open-form-btn">View</button></td>
+    </tr>
+    <tr>
+      <td>Bidder 4</td>
+      <td>104</td>
+      <td>$90</td>
+      <td>MAIN</td>
+      <td><button class="open-form-btn">View</button></td>
+    </tr>
+    <tr>
+      <td>Bidder 5</td>
+      <td>105</td>
+      <td>$90</td>
+      <td>OFF</td>
+      <td><button class="open-form-btn">View</button></td>
+    </tr>
+  </table>
+
+  <div class="popup-form" id="popup">
+    <h3>Bidder Details</h3>
+  <div class="popup-table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Price</th>
+          <th>Buyer</th>
+          <th>Bid Round</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1000</td><td>Tea Tang</td><td>1</td></tr>
+        <tr><td>980</td><td>Tea Tang</td><td>1</td></tr>
+        <tr><td>960</td><td>Tea Tang</td><td>1</td></tr>
+        <tr><td>1000</td><td>Tea Tang</td><td>1</td></tr>
+        <tr><td>1200</td><td>Tea Tang</td><td>1</td></tr>
+        <tr><td>970</td><td>Tea Tang</td><td>1</td></tr>
+        <!-- Add more rows as needed -->
+      </tbody>
+    </table>
+  </div>
+  <button onclick="exportPopupTableToCSV()">Download CSV</button>
+
+    <button class="close-btn">Close</button>
+  </div>
+
+  <script>
+
+ function exportPopupTableToCSV(filename = 'popup_data.csv') {
+      const table = document.querySelector('#popup table');
+      if (!table) {
+        alert('No table found in the popup!');
+        return;
+      }
+
+      let csv = [];
+      const rows = table.querySelectorAll('tr');
+
+      rows.forEach(row => {
+        const cols = row.querySelectorAll('td, th');
+        let rowData = [];
+        cols.forEach(cell => {
+          let text = cell.innerText.replace(/"/g, '""'); // escape quotes
+          rowData.push(`"${text}"`);
+        });
+        csv.push(rowData.join(','));
+      });
+
+      // Create CSV blob and trigger download
+      const blob = new Blob([csv.join('\n')], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      window.URL.revokeObjectURL(url);
+    }
+
+    const popup = document.getElementById('popup');
+    const openButtons = document.querySelectorAll('.open-form-btn');
+    const closeButton = popup.querySelector('.close-btn');
+    let closeTimeout;
+
+    openButtons.forEach(btn => {
+      btn.addEventListener('mouseenter', () => {
+        // Show popup
+        popup.classList.add('show');
+
+        // Optional: position popup near the button hovered
+        const rect = btn.getBoundingClientRect();
+        popup.style.top = '100px';          // fixed vertical position (adjust as needed)
+popup.style.left = '30%';           // 80% from left side (near right edge)
+
+
+        // Clear previous close timer
+        if (closeTimeout) clearTimeout(closeTimeout);
+
+        // Set timer to auto close popup after 5 seconds
+        closeTimeout = setTimeout(() => {
+          popup.classList.remove('show');
+        }, 5000);
+      });
+
+      // Optional: close popup immediately when mouse leaves button
+      btn.addEventListener('mouseleave', () => {
+        // If you want popup to close immediately on mouse leave, uncomment below:
+        // popup.classList.remove('show');
+        // if (closeTimeout) clearTimeout(closeTimeout);
+      });
+    });
+
+    closeButton.addEventListener('click', () => {
+      popup.classList.remove('show');
+      if (closeTimeout) clearTimeout(closeTimeout);
+    });
+  </script>
+</body>
+</html>
